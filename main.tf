@@ -92,7 +92,7 @@ resource "azurerm_network_interface" "poc-nic" {
 }
 
 # Create (and display) an SSH key
-resource "tls_private_key" "example_ssh" {
+resource "tls_private_key" "poc_ssh" {
   algorithm = "RSA"
   rsa_bits  = 4096
 }
@@ -124,7 +124,7 @@ resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
 
   admin_ssh_key {
     username   = "azureuser"
-    public_key = tls_private_key.example_ssh.public_key_openssh
+    public_key = tls_private_key.poc_ssh.public_key_openssh
   }
 /*
   boot_diagnostics {
