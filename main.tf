@@ -46,14 +46,28 @@ resource "azurerm_network_security_group" "poc-nsg" {
   }
 }
 
-resource "azurerm_network_security_rule" "poc-nsr" {
-  name                        = "${var.azurerm_network_security_rule}"
+resource "azurerm_network_security_rule" "poc-nsr-ssh" {
+  name                        = "Allow-SSH"
   priority                    = 100
   direction                   = "Inbound"
   access                      = "Allow"
   protocol                    = "Tcp"
   source_port_range           = "*"
   destination_port_range      = "22"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_resource_group.poc-rg.name
+  network_security_group_name = azurerm_network_security_group.poc-nsg.name
+}
+
+resource "azurerm_network_security_rule" "poc-nsr-icmp" {
+  name                        = "Allow-ICMP"
+  priority                    = 101
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Icmp"
+  source_port_range           = "*"
+  destination_port_range      = "*"
   source_address_prefix       = "*"
   destination_address_prefix  = "*"
   resource_group_name         = azurerm_resource_group.poc-rg.name
