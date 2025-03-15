@@ -36,34 +36,7 @@ resource "azurerm_subnet" "poc-subnet" {
   address_prefixes     = ["10.0.1.0/24"]
 }
 
-resource "azurerm_network_security_group" "poc-nsg" {
-  name                = "${var.azurerm_network_security_group}"
-  location            = "${var.location}"
-  resource_group_name = azurerm_resource_group.poc-rg.name
 
-  tags = {
-    environment = "poc"
-  }
-}
-
-resource "azurerm_network_security_rule" "poc-nsr" {
-  name                        = "${var.azurerm_network_security_rule}"
-  priority                    = 100
-  direction                   = "Inbound"
-  access                      = "Allow"
-  protocol                    = "Tcp"
-  source_port_range           = "*"
-  destination_port_range      = "22"
-  source_address_prefix       = "*"
-  destination_address_prefix  = "*"
-  resource_group_name         = azurerm_resource_group.poc-rg.name
-  network_security_group_name = azurerm_network_security_group.poc-nsg.name
-}
-
-resource "azurerm_subnet_network_security_group_association" "poc-sga" {
-  subnet_id                 = azurerm_subnet.poc-subnet.id
-  network_security_group_id = azurerm_network_security_group.poc-nsg.id
-}
 
 
 resource "azurerm_public_ip" "poc-ip" {
@@ -91,7 +64,48 @@ resource "azurerm_network_interface" "poc-nic" {
 }
 
 # Create (and display) an SSH key
-resource "tls_private_key" "poc_ssh" {
+resource "tls_private_key" "poc_ssh" {resource "azurerm_network_security_group" "poc-nsg" {
+  name                = "${var.azurerm_network_security_group}"
+  location            = "${var.location}"
+  resource_group_name = azurerm_resource_group.poc-rg.name
+
+  tags = {
+    environment = "poc"
+  }
+}
+
+resource "azurerm_network_security_rule" "poc-nsr-ssh" {
+  name                        = "Allow-SSH"
+  priority                    = 100
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "22"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_resource_group.poc-rg.name
+  network_security_group_name = azurerm_network_security_group.poc-nsg.name
+}
+
+resource "azurerm_network_security_rule" "poc-nsr-icmp" {
+  name                        = "Allow-ICMP"
+  priority                    = 101
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Icmp"
+  source_port_range           = "*"
+  destination_port_range      = "*"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_resource_group.poc-rg.name
+  network_security_group_name = azurerm_network_security_group.poc-nsg.name
+}
+
+resource "azurerm_subnet_network_security_group_association" "poc-sga" {
+  subnet_id                 = azurerm_subnet.poc-subnet.id
+  network_security_group_id = azurerm_network_security_group.poc-nsg.id
+}
   algorithm = "RSA"
   rsa_bits  = 4096
 }
