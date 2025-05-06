@@ -45,6 +45,11 @@ variable "azurerm_network_interface" {
   default = "sol-poc-nic"
 }
 
+variable "admin_username" {
+  description = "The admin username of the VM that will be deployed"
+  default     = "adminuser"
+}
+
 variable "admin_password" {
   description = "The admin password to be used on the VMSS that will be deployed. The password must meet the complexity requirements of Azure"
   default     = ""
@@ -58,11 +63,6 @@ variable "ssh_key" {
 variable "remote_port" {
   description = "Remote tcp port to be used for access to the vms created via the nsg applied to the nics."
   default     = ""
-}
-
-variable "admin_username" {
-  description = "The admin username of the VM that will be deployed"
-  default     = "adminuser"
 }
 
 variable "storage_account_type" {

@@ -13,7 +13,6 @@ provider "azurerm" {
   features {}
 }
 
-
 # Create a resource group
 resource "azurerm_resource_group" "poc-rg" {
   name     = "${var.resource_group_name}"
@@ -47,12 +46,26 @@ resource "azurerm_network_security_group" "poc-nsg" {
   }
 }
 
-resource "azurerm_network_security_rule" "poc-nsr" {
-  name                        = "${var.azurerm_network_security_rule}"
+resource "azurerm_network_security_rule" "poc-nsr-ssh" {
+  name                        = "Allow-SSH"
   priority                    = 100
   direction                   = "Inbound"
   access                      = "Allow"
-  protocol                    = "*"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "22"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_resource_group.poc-rg.name
+  network_security_group_name = azurerm_network_security_group.poc-nsg.name
+}
+
+resource "azurerm_network_security_rule" "poc-nsr-icmp" {
+  name                        = "Allow-ICMP"
+  priority                    = 101
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Icmp"
   source_port_range           = "*"
   destination_port_range      = "*"
   source_address_prefix       = "*"
@@ -120,15 +133,12 @@ resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
 
   computer_name                   = "myvm"
   admin_username                  = "azureuser"
-  disable_password_authentication = true
+  admin_password                  = "azure12s$"
+  disable_password_authentication = false
 
   admin_ssh_key {
     username   = "azureuser"
     public_key = tls_private_key.poc_ssh.public_key_openssh
   }
-/*
-  boot_diagnostics {
-    storage_account_uri = azurerm_storage_account.my_storage_account.primary_blob_endpoint
-  }
-*/
+
 }
